@@ -43,17 +43,18 @@ RCT_EXPORT_METHOD(setMask:(nonnull NSNumber *)reactNode mask:(NSString *)mask) {
         dispatch_async(dispatch_get_main_queue(), ^{
             RCTSinglelineTextInputView *view = viewRegistry[reactNode];
             RCTUITextField *textView = [view backedTextInputView];
-            
+            textView.attributedText = [NSAttributedString new];
+
             if (!masks) {
                 masks = [[NSMutableDictionary alloc] init];
             }
-            
+
             NSString *key = [NSString stringWithFormat:@"%@", reactNode];
             MaskedTextFieldDelegate* maskedDelegate = [[MaskedTextFieldDelegate alloc] initWithFormat:mask];
             masks[key] = maskedDelegate;
             [masks[key] setListener:self];
             textView.delegate = masks[key];
-            
+
             [self updateTextField:maskedDelegate textView:textView];
         });
     }];
@@ -91,10 +92,10 @@ RCT_EXPORT_METHOD(setMask:(nonnull NSNumber *)reactNode mask:(NSString *)mask) {
     if(textView.attributedText.string.length> 0){
         NSString *originalString = textView.attributedText.string;
         NSString *croppedText = [originalString substringToIndex:[originalString length] -1];
-        
+
         [textView setAttributedText:[[NSAttributedString alloc] initWithString:croppedText]];
         NSString *last = [originalString substringFromIndex:[originalString length] - 1];
-        
+
         [maskedDelegate textField:(UITextField*)textView
     shouldChangeCharactersInRange: (NSRange){[textView.attributedText.string length], 0}
                 replacementString:last];
@@ -102,4 +103,3 @@ RCT_EXPORT_METHOD(setMask:(nonnull NSNumber *)reactNode mask:(NSString *)mask) {
 }
 
 @end
-
